@@ -3,34 +3,29 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// Function to handle connecting to an SSH session
 async function connectSession(sessionName) {
     const ssh = new NodeSSH();
     try {
-        // Get the user's home directory and paths to necessary files
         const homeDir = os.homedir();
         const sshboxDir = path.join(homeDir, '.sshbox');
         const sessionsFilePath = path.join(sshboxDir, 'session.json');
 
-        // Ensure the session.json file exists and read the session data
         if (!fs.existsSync(sessionsFilePath)) {
             console.log('No sessions found. Please create a session first.');
             return;
         }
         const sessions = JSON.parse(fs.readFileSync(sessionsFilePath));
 
-        // Find the session by name
         const session = sessions.find(s => s.name === sessionName);
         if (!session) {
             console.log(`Session '${sessionName}' not found.`);
             return;
         }
 
-        // Set up the connection options based on the session data
         const connectionOptions = {
             host: session.host,
             port: session.port,
-            username: session.username, // Assuming session.username is provided separately
+            username: session.username,
         };
 
         if (session.credentialType === 'keyPath') {
@@ -39,17 +34,37 @@ async function connectSession(sessionName) {
             connectionOptions.password = session.credential;
         }
 
-        // Connect to the remote server
         console.log(`Connecting to ${session.host}...`);
         await ssh.connect(connectionOptions);
         console.log(`Connected to ${session.host}.`);
 
-        // Start an interactive SSH shell session
-        ssh.connection.shell((err, stream) => {
+        // Allocate a pseudo-terminal (PTY) to ensure proper terminal behavior
+        ssh.connection.shell({ term: 'xterm-color' }, (err, stream) => {
             if (err) throw err;
-            process.stdin.pipe(stream);
+
+            process.stdin.setRawMode(true);
+
+            // Listen for data input and send it directly to the SSH stream
+            process.stdin.on('data', (data) => {
+                // Write the data to the SSH stream to avoid duplication
+                stream.write(data);
+            });
+
+            // Pipe the output from the SSH stream back to the terminal
             stream.pipe(process.stdout);
             stream.stderr.pipe(process.stderr);
+
+            // Handle proper signal transmission for CTRL-C
+            stream.on('close', () => {
+                process.stdin.setRawMode(false);
+                ssh.dispose();
+                console.log('Connection closed.');
+            });
+
+            // Handle the 'end' event to properly end the session
+            stream.on('end', () => {
+                console.log('Session ended.');
+            });
         });
 
     } catch (error) {
