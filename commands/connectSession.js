@@ -29,7 +29,13 @@ async function connectSession(sessionName) {
         };
 
         if (session.credentialType === 'keyPath') {
-            connectionOptions.privateKey = session.credential;
+            // Read the private key file content
+            const privateKeyPath = path.resolve(session.credential); // Ensure it's an absolute path
+            if (fs.existsSync(privateKeyPath)) {
+                connectionOptions.privateKey = fs.readFileSync(privateKeyPath, 'utf8');
+            } else {
+                throw new Error(`Private key file not found: ${privateKeyPath}`);
+            }
         } else if (session.credentialType === 'password') {
             connectionOptions.password = session.credential;
         }

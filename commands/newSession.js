@@ -35,7 +35,7 @@ async function createNewSession() {
 
         let credential;
         if (useKeyFile) {
-            credential = await input({ message: 'Enter the path to the SSH key file:', default: '~/.ssh/id_rsa' });
+            credential = await input({ message: 'Enter the path to the SSH key file: (Use an absolute path e.g. /home/..)', default: '~/.ssh/id_rsa' });
         } else {
             credential = await password({ message: 'Enter your SSH password:', mask: '*' });
         }
