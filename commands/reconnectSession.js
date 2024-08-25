@@ -40,7 +40,13 @@ async function reconnectSession() {
         };
 
         if (session.credentialType === 'keyPath') {
-            connectionOptions.privateKey = session.credential;
+            // This is the modified section: Handling the key path
+            const privateKeyPath = path.resolve(session.credential); // Ensure it's an absolute path
+            if (fs.existsSync(privateKeyPath)) {
+                connectionOptions.privateKey = fs.readFileSync(privateKeyPath, 'utf8');
+            } else {
+                throw new Error(`Private key file not found: ${privateKeyPath}`);
+            }
         } else if (session.credentialType === 'password') {
             connectionOptions.password = session.credential;
         }
