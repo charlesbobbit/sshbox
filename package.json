@@ -11,10 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "@inquirer/prompts": "^5.3.8",
+    "enquirer": "^2.4.1",
     "node-ssh": "^13.2.0"
   },
   "bin": {
     "sshbox": "./index.js"
   }
-
 }
