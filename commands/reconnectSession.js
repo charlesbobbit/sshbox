@@ -40,8 +40,8 @@ async function reconnectSession() {
         };
 
         if (session.credentialType === 'keyPath') {
-            // This is the modified section: Handling the key path
-            const privateKeyPath = path.resolve(session.credential); // Ensure it's an absolute path
+            // This is again to read t he keypath first
+            const privateKeyPath = path.resolve(session.credential);
             if (fs.existsSync(privateKeyPath)) {
                 connectionOptions.privateKey = fs.readFileSync(privateKeyPath, 'utf8');
             } else {
@@ -55,20 +55,19 @@ async function reconnectSession() {
         await ssh.connect(connectionOptions);
         console.log(`Connected to ${session.host}.`);
 
-        // Open a shell on the remote server
+        // Again allocate PTY
         ssh.connection.shell({ term: 'xterm-color' }, (err, stream) => {
             if (err) throw err;
 
-            // Enable raw mode on stdin to handle character-by-character input
+            // This step was necessary to nnable raw mode on stdin to handle character-by-character input
             process.stdin.setRawMode(true);
             process.stdin.resume();
 
-            // Pipe stdin to the shell stream and shell output back to the terminal
             process.stdin.pipe(stream);
             stream.pipe(process.stdout);
             stream.stderr.pipe(process.stderr);
 
-            // Handle the closing of the shell
+            // To handle the closing of the shell
             stream.on('close', () => {
                 process.stdin.setRawMode(false);
                 process.stdin.pause();
@@ -76,7 +75,7 @@ async function reconnectSession() {
                 console.log('Connection closed.');
             });
 
-            // Handle the end of the stream
+            // To handle the end of the stream
             stream.on('end', () => {
                 console.log('Session ended.');
             });

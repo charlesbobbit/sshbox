@@ -1,17 +1,16 @@
 {
   "name": "sshbox",
   "version": "1.0.0",
-  "description": "",
+  "description": "An Interactive CLI tool for managing SSH sessions",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Ifeakachukwu Owoh <owohifeakachukwu@gmail.com>",
+  "license": "MIT",
   "dependencies": {
     "@inquirer/prompts": "^5.3.8",
-    "enquirer": "^2.4.1",
     "node-ssh": "^13.2.0"
   },
   "bin": {

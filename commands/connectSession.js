@@ -29,8 +29,8 @@ async function connectSession(sessionName) {
         };
 
         if (session.credentialType === 'keyPath') {
-            // Read the private key file content
-            const privateKeyPath = path.resolve(session.credential); // Ensure it's an absolute path
+            // This part is to read the private key file content before passing
+            const privateKeyPath = path.resolve(session.credential);
             if (fs.existsSync(privateKeyPath)) {
                 connectionOptions.privateKey = fs.readFileSync(privateKeyPath, 'utf8');
             } else {
@@ -44,30 +44,26 @@ async function connectSession(sessionName) {
         await ssh.connect(connectionOptions);
         console.log(`Connected to ${session.host}.`);
 
-        // Allocate a pseudo-terminal (PTY) to ensure proper terminal behavior
+        // I added this to allocate a pseudo-terminal (PTY) to ensure proper terminal behavior & formatting
         ssh.connection.shell({ term: 'xterm-color' }, (err, stream) => {
             if (err) throw err;
 
             process.stdin.setRawMode(true);
-
-            // Listen for data input and send it directly to the SSH stream
-            process.stdin.on('data', (data) => {
-                // Write the data to the SSH stream to avoid duplication
-                stream.write(data);
-            });
-
-            // Pipe the output from the SSH stream back to the terminal
+            process.stdin.resume();
+            
+            process.stdin.pipe(stream);
             stream.pipe(process.stdout);
             stream.stderr.pipe(process.stderr);
 
-            // Handle proper signal transmission for CTRL-C
+            // This is to handle the closing of the shell
             stream.on('close', () => {
                 process.stdin.setRawMode(false);
+                process.stdin.pause();
                 ssh.dispose();
                 console.log('Connection closed.');
             });
 
-            // Handle the 'end' event to properly end the session
+            // To handle the end of the stream
             stream.on('end', () => {
                 console.log('Session ended.');
             });

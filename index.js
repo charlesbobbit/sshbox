@@ -7,7 +7,7 @@ const reconnectSession = require('./commands/reconnectSession');
 const deleteSession = require('./commands/deleteSession'); 
 
 const command = process.argv[2];
-const sessionName = process.argv[3]; // The name of the session for connect command
+const sessionName = process.argv[3];
 
 if (command === 'new') {
     newSession();
@@ -19,19 +19,20 @@ if (command === 'new') {
     if (sessionName) {
         connectSession(sessionName);
     } else {
-        reconnectSession(); // No session name provided, so show the list
+        reconnectSession();
     }
-} else if (!command) { // Handle case with no command
+} else if (!command) { 
     console.log('\x1b[34m%s\x1b[0m', 'SSH-BOX CLI Tool');
     console.log('\x1b[36m%s\x1b[0m', '------------------------');
-    console.log('SSH-BOX is a command-line tool for managing SSH sessions.');
+    console.log('SSHBOX is a command-line tool for managing SSH sessions.');
     console.log('');
     console.log('Commands:');
     console.log('  new            - Create a new SSH session.');
     console.log('  list           - List all existing SSH sessions.');
     console.log('  connect        - Connect to an existing SSH session. (Use without session name to select from a list)');
+    console.log('  delete         - Delete from existing list of sessions');
     console.log('');
-    console.log('For more information, visit the SSH-BOX documentation.');
+    console.log('For more information, visit the SSH-BOX documentation here: https://github.com/charlesbobbit/sshbox)');
 } else {
     console.log(`Unknown command: ${command}`);
     console.log('Available commands: new, list, connect [<session_name>]');

@@ -3,20 +3,19 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// Function to handle creating a new SSH session
 async function createNewSession() {
     try {
-        // Get the user's home directory
+        // To Get the user's home directory
         const homeDir = os.homedir();
         const sshboxDir = path.join(homeDir, '.sshbox');
         const sessionsFilePath = path.join(sshboxDir, 'session.json');
 
-        // Ensure the .sshbox directory exists
+        // To Ensure the .sshbox directory exists
         if (!fs.existsSync(sshboxDir)) {
             fs.mkdirSync(sshboxDir);
         }
 
-        // Ensure the session.json file exists
+        // Ti Ensure the session.json file exists
         let sessions = [];
         if (fs.existsSync(sessionsFilePath)) {
             // Read the existing sessions
@@ -24,11 +23,11 @@ async function createNewSession() {
             sessions = JSON.parse(fileContent);
         }
 
-        // Collect user inputs
+        // To Coolect user inputs
         const name = await input({ message: 'What would you like to call your session: '});
-        const host = await input({ message: 'Enter the SSH host (e.g., username@host):' });
+        const host = await input({ message: 'Enter the SSH host (e.g., ...@host):' });
         const port = await input({ message: 'Enter the SSH port:', default: '22' });
-        const username = await input({ message: 'Enter the host username (e.g., username@):' });
+        const username = await input({ message: 'Enter the host username (e.g., username@...):' });
 
         // Ask if the user wants to use a key file or a password
         const useKeyFile = await confirm({ message: 'Do you want to use a key file for authentication?', default: true });
@@ -60,7 +59,7 @@ async function createNewSession() {
         // Add the new session
         sessions.push(session);
 
-        // Write the updated sessions array back to the file
+        // To Write the updated sessions array back to the file
         fs.writeFileSync(sessionsFilePath, JSON.stringify(sessions, null, 2));
 
         console.log('SSH session details saved successfully!');
@@ -69,5 +68,4 @@ async function createNewSession() {
     }
 }
 
-// Export the function for use in other modules
 module.exports = createNewSession;
